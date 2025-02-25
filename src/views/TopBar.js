@@ -1,4 +1,4 @@
-import {Link} from "react-router-dom";
+import {Link, Navigate} from "react-router-dom";
 import React, { useState, useEffect } from "react";
 import '../css/TopBar.css';
 
@@ -22,9 +22,12 @@ const TopBar = () => {
     const handleLogout = () => {
         localStorage.removeItem('role');
         localStorage.removeItem('username');
+        localStorage.removeItem('token');
         setIsLoggedIn(false);
         setUserRole('');
         setUsername('');
+
+        window.location.reload()
     };
 
     return (

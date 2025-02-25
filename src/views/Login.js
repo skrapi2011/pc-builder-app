@@ -27,6 +27,7 @@ const LoginPane = () => {
                 const username = data.username;
                 localStorage.setItem('role', userRole);
                 localStorage.setItem('username', username);
+                localStorage.setItem('token', data.token);
                 setIsLogged(true);
 
             } else {
