@@ -1,0 +1,72 @@
+/*component info*/
+.product-container {
+    width: 60%;
+    margin: 100px auto;
+    padding: 30px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+}
+
+.product-name {
+    color: #333;
+    text-align: center;
+    font-size: 40px;
+}
+
+.product-type,
+.product-description,
+.product-price {
+    font-size: 25px;
+    margin-bottom: 15px;
+}
+
+.product-description {
+    font-size: 30px;
+}
+.product-description span{
+    font-weight: bold;
+}
+
+.product-type span,
+.product-price span {
+    font-weight: bold;
+}
+
+.add-button {
+    display: block;
+    width: 100%;
+    padding: 15px;
+    background-color: #45a049;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 20px;
+}
+
+.add-button:hover {
+    background-color: #2e7a32;
+}
+
+.product-id {
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.delete-button {
+    padding: 10px 20px;
+    background-color: #ff4d4d;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    margin-top: 10px;
+    font-weight: bold;
+    float: right;
+}
+
+.delete-button:hover {
+    background-color: #cc0000;
+}

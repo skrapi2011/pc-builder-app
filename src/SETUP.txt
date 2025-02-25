@@ -1,0 +1,14 @@
+Użyte biblioteki do python:
+- pip install flask
+- pip install flask-cors
+
+Instalowanie node_modules:
+- npm i
+
+Pluginy WebStorm do zarządzania baza danych:
+- Database tools and SQL for WebStorm
+- SimpleSqliteBrowser
+
+Odpalenie:
+- python api.py
+- npm startx

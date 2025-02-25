@@ -1,0 +1,88 @@
+/* Main panel */
+.manage-panel {
+    height: 700px;
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    padding: 20px;
+    font-size: 30px;
+}
+
+.manage-panel form {
+    display: flex;
+    flex-direction: column;
+}
+
+.manage-panel button {
+    margin-top: 10px;
+    padding: 10px 0;
+    background-color: #5C80BC;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.manage-panel button:hover {
+    background-color: #4a69ad;
+}
+
+.manage-panel form input, .manage-panel form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    font-size: 20px;
+}
+
+.manage-panel textarea {
+    resize: none;
+    height: 150px;
+    margin-left: 10px;
+}
+
+.manage-message {
+    text-align: center;
+    font-weight: bold;
+    color: #5C80BC;
+}
+
+/* Categories */
+.categories-panel {
+    width: 20%;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.categories-panel h2 {
+    text-align: center;
+}
+
+.categories-panel ul {
+    padding: 0;
+    list-style: none;
+}
+
+.categories-panel li {
+    padding: 5px 0;
+    font-size: 25px;
+    text-align: center;
+}
+
+/* add, edit components */
+.add-component, .edit-component {
+    width: 37%;
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 10px;
+    margin-bottom: 20px;
+}
+
+.add-component h2, .edit-component h2 {
+    text-align: center;
+}
+
+
