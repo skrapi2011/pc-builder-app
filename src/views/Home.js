@@ -31,7 +31,15 @@ const Categories = ({ activeCategory, toggleCategory }) => {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/categories')
+        fetch('http://localhost:5000/categories', {
+            method: "GET",
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            }
+            }
+
+        )
             .then(response => response.json())
             .then(data => setCategories(data))
             .catch(error => console.error('Error:', error));
