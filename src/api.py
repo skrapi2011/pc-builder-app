@@ -2,6 +2,7 @@ import os
 import sqlite3
 import jwt
 from datetime import datetime, timezone, timedelta
+from functools import wraps
 import base64
 
 from datetime import datetime
@@ -15,10 +16,11 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
-SECRET_KEY = os.urandom(24)
+SECRET_KEY = b'\x86\xd9\xb5\xff\xdaO?\xd2B\xc7\xf6\xe4\x85v~\xd1\xeea\x17\xe8_kB:'
 
-basedir = os.path.abspath(os.path.dirname(__file__)
+basedir = os.path.abspath(os.path.dirname(__file__))
 DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
+DATABASE = "C:\\Users\\michi\\Desktop\\pc-builder-app\\src\\data\\database.db"
 
 
 ##################
@@ -58,13 +60,40 @@ def encode_auth_token(username):
         raise Exception("[EXCEPTION WITH TOKEN]: ", e)
 
 
+def authorized(f):
+    @wraps(f)
+    def decorated(*args, **kwargs):
+        token = None
+        if 'Authorization' in request.headers:
+            auth_header = request.headers.get('Authorization')
+            parts = auth_header.split()
+            if len(parts) == 2 and parts[0].lower() == 'bearer':
+                token = parts[1]
+
+        if not token:
+            print(" TOKEN",token)
+            return jsonify({'error': 'Unauthorized'}), 401
+
+        try:
+            payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
+            current_user = payload['sub']
+
+        except jwt.ExpiredSignatureError:
+            return jsonify({'error': 'Token expired'}), 401
+        except jwt.InvalidTokenError:
+            return jsonify({'error': 'Invalid token'}), 401
+
+        return f(current_user, *args, **kwargs)
+    return decorated
+
 ##################
 #    endpoints   #
 ##################
 
 # GET all categories
 @app.route('/categories', methods=['GET'])
-def get_categories():
+@authorized
+def get_categories(current_user):
     categories = query_db('SELECT * FROM Category')
     return jsonify([dict(ix) for ix in categories]), 200
 
