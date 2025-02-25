@@ -8,14 +8,22 @@ from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+
+##################
+#   App config   #
+##################
 app = Flask(__name__)
 CORS(app)
 
+SECRET_KEY = os.urandom(24)
 
-SECRET_KEY = b'3\x81b\x8f\xca\xbfmP\xae\xe2i\xc7\x80\x1a\x9c\x19rvv\xa0\xde\xbf.\xa1'
+basedir = os.path.abspath(os.path.dirname(__file__)
+DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
 
-DATABASE = "D:\\PROJEKT\\projekt\\src\\data\\database.db"
 
+##################
+#    db query    #
+##################
 def query_db(query, args=(), one=False, commit=False):
     conn = sqlite3.connect(DATABASE)
     conn.row_factory = sqlite3.Row
@@ -29,7 +37,9 @@ def query_db(query, args=(), one=False, commit=False):
     conn.close()
     return (rv[0] if rv else None) if one else rv
 
-
+##################
+#   JWT Config   #
+##################
 def encode_auth_token(username):
     try:
         payload = {
@@ -47,6 +57,10 @@ def encode_auth_token(username):
     except Exception as e:
         raise Exception("[EXCEPTION WITH TOKEN]: ", e)
 
+
+##################
+#    endpoints   #
+##################
 
 # GET all categories
 @app.route('/categories', methods=['GET'])
