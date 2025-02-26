@@ -40,7 +40,10 @@ const LoginPane = () => {
     };
 
     if (isLogged) {
-        return <Navigate to="/" />;
+        // used to refresh localstorage which is stateless
+        // TODO: Make authService to avoid using window.location...
+        window.location.href = '/';
+        //return <Navigate to="/" />;
     }
 
     return (
