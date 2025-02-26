@@ -16,10 +16,13 @@ from flask_cors import CORS
 app = Flask(__name__)
 CORS(app)
 
+# [!] We would not normally store key there, but its a sample project and database is not important
+# we can regenerate key using:
+# SECRET_KEY = os.urandom(24)
 SECRET_KEY = b'\x86\xd9\xb5\xff\xdaO?\xd2B\xc7\xf6\xe4\x85v~\xd1\xeea\x17\xe8_kB:'
 
-basedir = os.path.abspath(os.path.dirname(__file__))
-DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
+#basedir = os.path.abspath(os.path.dirname(__file__))
+#DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
 DATABASE = "C:\\Users\\michi\\Desktop\\pc-builder-app\\src\\data\\database.db"
 
 
