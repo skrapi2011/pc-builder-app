@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
+import { apiService } from '../services/api';
 import TopBar from './TopBar';
 import Footer from "./Footer";
 import '../css/Login.css';
@@ -13,25 +14,16 @@ const LoginPane = () => {
     const handleLogin = async (e) => {
         e.preventDefault();
         try {
-            const response = await fetch('http://localhost:5000/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
+            const response = await apiService.login({ username, password });
+            const data = await response.json();
 
             if (response.ok) {
-                const data = await response.json();
-                const userRole = data.role;
-                const username = data.username;
-                localStorage.setItem('role', userRole);
-                localStorage.setItem('username', username);
+                localStorage.setItem('role', data.role);
+                localStorage.setItem('username', data.username);
                 localStorage.setItem('token', data.token);
                 setIsLogged(true);
-
             } else {
-                setMessage('Nieprawidłowe login lub hasło');
+                setMessage(data.message || 'Nieprawidłowy login lub hasło');
             }
         } catch (error) {
             console.error('Wystąpił błąd podczas logowania', error);
@@ -40,10 +32,8 @@ const LoginPane = () => {
     };
 
     if (isLogged) {
-        // used to refresh localstorage which is stateless
-        // TODO: Make authService to avoid using window.location...
         window.location.href = '/';
-        //return <Navigate to="/" />;
+        return null;
     }
 
     return (
@@ -53,12 +43,12 @@ const LoginPane = () => {
                 <form onSubmit={handleLogin}>
                     <div className="form-login">
                         <label className="login-label" htmlFor="username">Nazwa użytkownika:</label>
-                        <input type="text" id="login-username" name="username" required
+                        <input type="text" id="login-username" name="username" value={username} required
                                onChange={(e) => setUsername(e.target.value)} />
                     </div>
                     <div className="form-login">
                         <label className="login-label" htmlFor="password">Hasło:</label>
-                        <input type="password" id="login-password" name="password" required
+                        <input type="password" id="login-password" name="password" value={password} required
                                onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <div className="form-login">

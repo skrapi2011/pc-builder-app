@@ -95,8 +95,10 @@ def authorized(f):
 
 # GET all categories
 @app.route('/categories', methods=['GET'])
-@authorized
-def get_categories(current_user):
+#@authorized
+def get_categories(
+    #current_user
+    ):
     categories = query_db('SELECT * FROM Category')
     return jsonify([dict(ix) for ix in categories]), 200
 

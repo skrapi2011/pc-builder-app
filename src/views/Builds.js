@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import '../css/Builds.css';
 import TopBar from './TopBar';
 import Footer from './Footer';
+import { apiService } from '../services/api';
 
 const BuildsPanel = () => {
     const [builds, setBuilds] = useState([]);
@@ -14,7 +15,7 @@ const BuildsPanel = () => {
 
     const fetchBuilds = () => {
         const username = localStorage.getItem('username');
-        fetch(`http://localhost:5000/build/${username}`)
+        apiService.getBuilds(username)
             .then(response => response.json())
             .then(data => {
                 setBuilds(data);
@@ -25,15 +26,9 @@ const BuildsPanel = () => {
 
     const handleAddBuild = async () => {
         try {
-            const response = await fetch('http://localhost:5000/build/add', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    name: newBuildName,
-                    username: localStorage.getItem('username')
-                }),
+            const response = await apiService.addBuild({
+                name: newBuildName,
+                username: localStorage.getItem('username')
             });
 
             if (response.ok) {
@@ -53,10 +48,7 @@ const BuildsPanel = () => {
 
     const handleDeleteBuild = async (buildId) => {
         try {
-            const response = await fetch(`http://localhost:5000/build/${buildId}`, {
-                method: 'DELETE',
-            });
-
+            const response = await apiService.deleteBuild(buildId);
             if (response.ok) {
                 fetchBuilds();
             } else {

@@ -3,6 +3,7 @@ import React, {useEffect, useState} from "react";
 import Footer from "./Footer";
 import '../css/Component.css';
 import TopBar from "./TopBar";
+import { apiService } from '../services/api';
 
 const CompInfo = () => {
     const [componentDetails, setComponentDetails] = useState();
@@ -11,7 +12,7 @@ const CompInfo = () => {
     const { id } = useParams();
 
     useEffect(() => {
-        fetch(`http://localhost:5000/component/${id}`)
+        apiService.getComponent(id)
             .then(response => response.json())
             .then(data => {
                 setComponentDetails(data);
@@ -21,13 +22,7 @@ const CompInfo = () => {
     }, [id]);
 
     const handleDelete = async () => {
-        await fetch(`http://localhost:5000/remove`, {
-            method: 'DELETE',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ component_id: componentDetails.component_id }),
-        })
+        await apiService.removeComponent(componentDetails.component_id)
             .then(response => {
                 if (response.ok) {
                     setMessage('Komponent został usunięty.');
