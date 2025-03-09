@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { apiService } from '../services/api';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import TopBar from './TopBar';
 import Footer from "./Footer";
 import '../css/Login.css';
@@ -9,32 +9,19 @@ const LoginPane = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const [isLogged, setIsLogged] = useState(false);
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        try {
-            const response = await apiService.login({ username, password });
-            const data = await response.json();
-
-            if (response.ok) {
-                localStorage.setItem('role', data.role);
-                localStorage.setItem('username', data.username);
-                localStorage.setItem('token', data.token);
-                setIsLogged(true);
-            } else {
-                setMessage(data.message || 'Nieprawidłowy login lub hasło');
-            }
-        } catch (error) {
-            console.error('Wystąpił błąd podczas logowania', error);
-            setMessage('Wystąpił błąd podczas logowania');
+        const result = await login({ username, password });
+        
+        if (result.success) {
+            window.location.href = '/';
+        } else {
+            setMessage(result.message);
         }
     };
-
-    if (isLogged) {
-        window.location.href = '/';
-        return null;
-    }
 
     return (
         <div className="login-page-container">

@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:5000';
+import { config } from '../config/config';
+
+const API_URL = config.api.baseUrl;
 
 const getAuthHeader = () => ({
     'Authorization': `Bearer ${localStorage.getItem('token')}`
@@ -6,27 +8,27 @@ const getAuthHeader = () => ({
 
 export const apiService = {
     // Autoryzacja
-    login: (credentials) => fetch(`${API_URL}/login`, {
+    login: (credentials) => fetch(`${API_URL}${config.api.endpoints.login}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(credentials)
     }),
 
-    register: (userData) => fetch(`${API_URL}/register`, {
+    register: (userData) => fetch(`${API_URL}${config.api.endpoints.register}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(userData)
     }),
 
     // Kategorie
-    getCategories: () => fetch(`${API_URL}/categories`, {
+    getCategories: () => fetch(`${API_URL}${config.api.endpoints.categories}`, {
         headers: getAuthHeader()
     }),
 
     // Komponenty
-    getComponents: () => fetch(`${API_URL}/components`),
+    getComponents: () => fetch(`${API_URL}${config.api.endpoints.components}`),
     
-    getComponent: (id) => fetch(`${API_URL}/component/${id}`),
+    getComponent: (id) => fetch(`${API_URL}${config.api.endpoints.component}/${id}`),
     
     addComponent: (componentData) => fetch(`${API_URL}/add`, {
         method: 'POST',
