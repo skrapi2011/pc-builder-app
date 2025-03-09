@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import TopBar from './TopBar';
 import Footer from './Footer';
 import '../css/Home.css';
+import { apiService } from '../services/api';
 
 const Home = () => {
     const [activeCategory, setActiveCategory] = useState(null);
@@ -31,7 +32,7 @@ const Categories = ({ activeCategory, toggleCategory }) => {
     const [categories, setCategories] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/categories')
+        apiService.getCategories()
             .then(response => response.json())
             .then(data => setCategories(data))
             .catch(error => console.error('Error:', error));
@@ -64,7 +65,7 @@ const Products = ({ activeCategory }) => {
     const [allProducts, setAllProducts] = useState([]);
 
     useEffect(() => {
-        fetch('http://localhost:5000/components')
+        apiService.getComponents()
             .then(response => response.json())
             .then(data => {
                 setAllProducts(data);

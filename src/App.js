@@ -6,6 +6,8 @@ import Register from "./views/Register";
 import Manage from "./views/Manage";
 import Component from "./views/Component";
 import Builds from "./views/Builds";
+import { AuthProvider } from './context/AuthContext';
+import { ProtectedRoute } from './components/ProtectedRoute';
 
 function App() {
     const [userRole, setUserRole] = useState(localStorage.getItem('role') || '');
@@ -18,29 +20,43 @@ function App() {
     }, []);
 
     return (
-
-        <Router>
-            <div className="App">
-                <div className="content">
-                    <Routes>
-                        <Route exact path="/" element={<Home />} />
-                        <Route exact path="/login" element={<Login />} />
-                        <Route exact path="/register" element={<Register />} />
-                        {userRole === 'Admin' ? (
-                            <Route exact path="/manage" element={<Manage />} />
-                        ) : (
-                            <Route exact path="/manage" element={<Navigate to="/login" />} />
-                        )}
-                        <Route exact path="/component/:id" element={<Component />} />
-                        {userRole === 'Admin' || userRole === 'User' ? (
-                            <Route exact path="/builds" element={<Builds />} />
-                        ) : (
-                            <Route exact path="/builds" element={<Navigate to="/login" />} />
-                        )}
-                    </Routes>
+        <AuthProvider>
+            <Router>
+                <div className="App">
+                    <div className="content">
+                        <Routes>
+                            <Route path="/" element={<Home />} />
+                            <Route path="/login" element={<Login />} />
+                            <Route path="/register" element={<Register />} />
+                            <Route 
+                                path="/manage" 
+                                element={
+                                    <ProtectedRoute requiredRole="Admin">
+                                        <Manage />
+                                    </ProtectedRoute>
+                                } 
+                            />
+                            <Route 
+                                exact path="/component/:id" 
+                                element={
+                                    <ProtectedRoute>
+                                        <Component />
+                                    </ProtectedRoute>
+                                } 
+                            />
+                            <Route 
+                                path="/builds" 
+                                element={
+                                    <ProtectedRoute>
+                                        <Builds />
+                                    </ProtectedRoute>
+                                } 
+                            />
+                        </Routes>
+                    </div>
                 </div>
-            </div>
-        </Router>
+            </Router>
+        </AuthProvider>
     );
 }
 

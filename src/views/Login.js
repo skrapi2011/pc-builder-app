@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { Link, Navigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
+import { useAuth } from '../context/AuthContext';
 import TopBar from './TopBar';
 import Footer from "./Footer";
 import '../css/Login.css';
@@ -8,39 +9,19 @@ const LoginPane = () => {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [message, setMessage] = useState('');
-    const [isLogged, setIsLogged] = useState(false);
+    const { login } = useAuth();
+    const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
-        try {
-            const response = await fetch('http://localhost:5000/login', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ username, password }),
-            });
-
-            if (response.ok) {
-                const data = await response.json();
-                const userRole = data.role;
-                const username = data.username;
-                localStorage.setItem('role', userRole);
-                localStorage.setItem('username', username);
-                setIsLogged(true);
-
-            } else {
-                setMessage('Nieprawidłowe login lub hasło');
-            }
-        } catch (error) {
-            console.error('Wystąpił błąd podczas logowania', error);
-            setMessage('Wystąpił błąd podczas logowania');
+        const result = await login({ username, password });
+        
+        if (result.success) {
+            window.location.href = '/';
+        } else {
+            setMessage(result.message);
         }
     };
-
-    if (isLogged) {
-        return <Navigate to="/" />;
-    }
 
     return (
         <div className="login-page-container">
@@ -49,12 +30,12 @@ const LoginPane = () => {
                 <form onSubmit={handleLogin}>
                     <div className="form-login">
                         <label className="login-label" htmlFor="username">Nazwa użytkownika:</label>
-                        <input type="text" id="login-username" name="username" required
+                        <input type="text" id="login-username" name="username" value={username} required
                                onChange={(e) => setUsername(e.target.value)} />
                     </div>
                     <div className="form-login">
                         <label className="login-label" htmlFor="password">Hasło:</label>
-                        <input type="password" id="login-password" name="password" required
+                        <input type="password" id="login-password" name="password" value={password} required
                                onChange={(e) => setPassword(e.target.value)} />
                     </div>
                     <div className="form-login">

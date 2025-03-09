@@ -50,8 +50,7 @@ CREATE TABLE User (
     surname varchar(25) NOT NULL,
     email varchar(25) NOT NULL,
     password varchar(25) NOT NULL,
-    role varchar(25) NOT NULL,
-    token
+    role varchar(25) NOT NULL
 );
 
 -- End of file.
