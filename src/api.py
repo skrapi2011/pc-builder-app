@@ -21,6 +21,7 @@ CORS(app)
 # SECRET_KEY = os.urandom(24)
 SECRET_KEY = b'\x86\xd9\xb5\xff\xdaO?\xd2B\xc7\xf6\xe4\x85v~\xd1\xeea\x17\xe8_kB:'
 
+# TODO: change to basedir   
 #basedir = os.path.abspath(os.path.dirname(__file__))
 #DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
 DATABASE = "C:\\Users\\michi\\Desktop\\pc-builder-app\\src\\data\\database.db"
@@ -264,7 +265,7 @@ def get_user_builds(current_user, username):
         # returning builds
         return jsonify(list(grouped_builds.values())), 200
     except Exception as e:
-        print(f"Error in get_user_builds: {str(e)}")  # Dodajmy logowanie błędu
+        print(f"Error in get_user_builds: {str(e)}")
         return jsonify({'error': str(e)}), 500
 
 
