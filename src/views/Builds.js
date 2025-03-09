@@ -9,22 +9,35 @@ const BuildsPanel = () => {
     const [newBuildName, setNewBuildName] = useState('');
     const [editingBuild, setEditingBuild] = useState(null);
     const [editName, setEditName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState(null);
 
     // Data fetching
     useEffect(() => {
         fetchBuilds();
     }, []);
 
-    const fetchBuilds = () => {
-        const username = localStorage.getItem('username');
-        apiService.getBuilds(username)
-            .then(response => response.json())
-            .then(data => {
+    const fetchBuilds = async () => {
+        setIsLoading(true);
+        try {
+            const username = localStorage.getItem('username');
+            const response = await apiService.getBuilds(username);
+            const data = await response.json();
+            
+            if (Array.isArray(data)) {
                 setBuilds(data);
-            })
-            .catch(error => console.error('Error:', error));
+            } else {
+                setBuilds([]);
+                setError('Nieprawidłowy format danych');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setError('Wystąpił błąd podczas pobierania zestawów');
+            setBuilds([]);
+        } finally {
+            setIsLoading(false);
+        }
     };
-
 
     const handleAddBuild = async () => {
         try {
@@ -95,55 +108,69 @@ const BuildsPanel = () => {
         }
     };
 
+    if (isLoading) {
+        return <div>Ładowanie zestawów...</div>;
+    }
+
+    if (error) {
+        return <div className="error-message">{error}</div>;
+    }
+
     return (
         <main className="builds-container">
             <div className="add-build-section">
                 <input type="text" placeholder="Nazwa nowego zestawu" value={newBuildName} required
                     onChange={(e) => setNewBuildName(e.target.value)}/>
-                <button onClick={handleAddBuild} className="add-build-button">
+                <button onClick={handleAddBuild} className="add-build-button" disabled={!newBuildName.trim()}>
                     Utwórz nowy zestaw
                 </button>
             </div>
-            {builds.map(build => (
-                <div className="build" key={build.build_id}>
-                    {editingBuild?.build_id === build.build_id ? (
-                        <div className="edit-build-form">
-                            <input
-                                type="text"
-                                value={editName}
-                                onChange={(e) => setEditName(e.target.value)}
-                                placeholder="Nazwa zestawu"
-                            />
-                            <button onClick={handleSaveEdit}>Zapisz</button>
-                            <button onClick={() => setEditingBuild(null)}>Anuluj</button>
-                        </div>
-                    ) : (
-                        <>
-                            <h2>{build.build_name}</h2>
-                            <ul>
-                                {build.components.map(component => (
-                                    <li key={component.component_id}>
-                                        <div className="component-info">
-                                            {`${component.component_name} (x${component.quantity}) - ${component.price.toFixed(2)} zł`}
-                                            <button 
-                                                onClick={() => handleRemoveComponent(build.build_id, component.component_id)}
-                                                className="remove-component-btn"
-                                            >
-                                                Usuń
-                                            </button>
-                                        </div>
-                                    </li>
-                                ))}
-                            </ul>
-                            <h2>Cena: {build.components.reduce((acc, {price, quantity}) => acc + price * quantity, 0).toFixed(2)} zł</h2>
-                            <div className="build-actions">
-                                <button onClick={() => handleEditBuild(build)}>Edytuj</button>
-                                <button onClick={() => handleDeleteBuild(build.build_id)}>Usuń</button>
-                            </div>
-                        </>
-                    )}
+            {builds.length === 0 ? (
+                <div className="no-builds-message">
+                    Nie masz jeszcze żadnych zestawów
                 </div>
-            ))}
+            ) : (
+                builds.map(build => (
+                    <div className="build" key={build.build_id}>
+                        {editingBuild?.build_id === build.build_id ? (
+                            <div className="edit-build-form">
+                                <input
+                                    type="text"
+                                    value={editName}
+                                    onChange={(e) => setEditName(e.target.value)}
+                                    placeholder="Nazwa zestawu"
+                                />
+                                <button onClick={handleSaveEdit}>Zapisz</button>
+                                <button onClick={() => setEditingBuild(null)}>Anuluj</button>
+                            </div>
+                        ) : (
+                            <>
+                                <h2>{build.build_name}</h2>
+                                <ul>
+                                    {build.components.map(component => (
+                                        <li key={component.component_id}>
+                                            <div className="component-info">
+                                                {`${component.component_name} (x${component.quantity}) - ${component.price.toFixed(2)} zł`}
+                                                <button 
+                                                    onClick={() => handleRemoveComponent(build.build_id, component.component_id)}
+                                                    className="remove-component-btn"
+                                                >
+                                                    Usuń
+                                                </button>
+                                            </div>
+                                        </li>
+                                    ))}
+                                </ul>
+                                <h2>Cena: {build.components.reduce((acc, {price, quantity}) => acc + price * quantity, 0).toFixed(2)} zł</h2>
+                                <div className="build-actions">
+                                    <button onClick={() => handleEditBuild(build)}>Edytuj</button>
+                                    <button onClick={() => handleDeleteBuild(build.build_id)}>Usuń</button>
+                                </div>
+                            </>
+                        )}
+                    </div>
+                ))
+            )}
         </main>
     );
 };

@@ -219,13 +219,16 @@ def remove(current_user):
 @app.route('/build/<username>', methods=['GET'])
 @authorized
 def get_user_builds(current_user, username):
-    if current_user['role'] != 'User':
-        return jsonify({'error': 'Nie masz uprawnień do wyświetlania zestawów.'}), 403
+
+    if current_user != username:
+        return jsonify({'error': 'Nie masz uprawnień do wyświetlania zestawów tego użytkownika'}), 403
 
     try:
         # All user builds
         builds_query = '''
-        SELECT b.build_id, b.Name as build_name, b.date, b.username, b.status, bi.quantity, c.component_id, c.name as component_name, c.description, c.price
+        SELECT b.build_id, b.Name as build_name, b.date, b.username, b.status, 
+               bi.quantity, c.component_id, c.name as component_name, 
+               c.description, c.price
         FROM Build b
         LEFT JOIN BuildInfo bi ON b.build_id = bi.build_id
         LEFT JOIN Component c ON bi.component_id = c.component_id
@@ -261,6 +264,7 @@ def get_user_builds(current_user, username):
         # returning builds
         return jsonify(list(grouped_builds.values())), 200
     except Exception as e:
+        print(f"Error in get_user_builds: {str(e)}")  # Dodajmy logowanie błędu
         return jsonify({'error': str(e)}), 500
 
 

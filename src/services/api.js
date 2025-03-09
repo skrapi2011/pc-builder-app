@@ -53,7 +53,12 @@ export const apiService = {
     }),
 
     // Zestawy
-    getBuilds: (username) => fetch(`${API_URL}${config.api.endpoints.builds}/${username}`),
+    getBuilds: (username) => fetch(`${API_URL}${config.api.endpoints.builds}/${username}`, {
+        headers: {
+            ...defaultHeaders,
+            ...getAuthHeader()
+        }
+    }),
     
     addBuild: (buildData) => fetch(`${API_URL}${config.api.endpoints.addBuild}`, {
         method: 'POST',

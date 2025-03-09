@@ -36,7 +36,14 @@ function App() {
                                     </ProtectedRoute>
                                 } 
                             />
-                            <Route exact path="/component/:id" element={<Component />} />
+                            <Route 
+                                exact path="/component/:id" 
+                                element={
+                                    <ProtectedRoute>
+                                        <Component />
+                                    </ProtectedRoute>
+                                } 
+                            />
                             <Route 
                                 path="/builds" 
                                 element={
