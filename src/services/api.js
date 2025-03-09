@@ -59,5 +59,38 @@ export const apiService = {
 
     deleteBuild: (buildId) => fetch(`${API_URL}/build/${buildId}`, {
         method: 'DELETE'
-    })
+    }),
+
+    updateBuild: (buildData) => {
+        return fetch(`${API_URL}/build/update`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(buildData)
+        });
+    },
+
+    addComponentToBuild: (data) => {
+        return fetch(`${API_URL}/build/component/add`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify(data)
+        });
+    },
+
+    removeComponentFromBuild: (buildId, componentId) => {
+        return fetch(`${API_URL}/build/component/remove`, {
+            method: 'DELETE',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${localStorage.getItem('token')}`
+            },
+            body: JSON.stringify({ buildId, componentId })
+        });
+    }
 }; 

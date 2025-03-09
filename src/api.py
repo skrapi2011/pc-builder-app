@@ -293,7 +293,71 @@ def remove_build(build_id):
     except Exception as e:
         return jsonify({'message': 'Nie można usunąć builda z bazy.'}), 500
 
+# POST, updating build name 
+@app.route('/build/update', methods=['POST'])
+def update_build():
+    data = request.json
+    build_id = data.get('buildId')
+    name = data.get('name')
+    
+    try:
+        query_db('UPDATE Build SET Name=? WHERE build_id=?',
+                 [name, build_id], commit=True)
+        return jsonify({'message': 'Nazwa zestawu została zaktualizowana.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
+# POST, adding component to build
+@app.route('/build/component/add', methods=['POST'])
+def add_component_to_build():
+    data = request.json
+    build_id = data.get('buildId')
+    component_id = data.get('componentId')
+    quantity = data.get('quantity', 1)
+    
+    try:
+        build_exists = query_db('SELECT 1 FROM Build WHERE build_id = ?', 
+                              [build_id], one=True)
+        if not build_exists:
+            return jsonify({'error': 'Zestaw nie istnieje'}), 404
+
+        component = query_db('SELECT name, price FROM Component WHERE component_id = ?', 
+                           [component_id], one=True)
+        if not component:
+            return jsonify({'error': 'Komponent nie istnieje'}), 404
+            
+        existing = query_db('SELECT quantity FROM BuildInfo WHERE build_id=? AND component_id=?',
+                          [build_id, component_id], one=True)
+        
+        if existing:
+            new_quantity = existing['quantity'] + quantity
+            query_db('UPDATE BuildInfo SET quantity=? WHERE build_id=? AND component_id=?',
+                    [new_quantity, build_id, component_id], commit=True)
+        else:
+            query_db('''INSERT INTO BuildInfo 
+                       (name, component_id, build_id, quantity, price) 
+                       VALUES (?, ?, ?, ?, ?)''',
+                    [component['name'], component_id, build_id, quantity, component['price']], 
+                    commit=True)
+            
+        return jsonify({'message': 'Komponent został dodany do zestawu.'}), 200
+    except Exception as e:
+        print(f"Błąd podczas dodawania komponentu do zestawu: {str(e)}")
+        return jsonify({'error': str(e)}), 500
+
+# DELETE, removing component from build
+@app.route('/build/component/remove', methods=['DELETE'])
+def remove_component_from_build():
+    data = request.json
+    build_id = data.get('buildId')
+    component_id = data.get('componentId')
+    
+    try:
+        query_db('DELETE FROM BuildInfo WHERE build_id=? AND component_id=?',
+                 [build_id, component_id], commit=True)
+        return jsonify({'message': 'Komponent został usunięty z zestawu.'}), 200
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

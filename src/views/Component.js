@@ -9,6 +9,10 @@ const CompInfo = () => {
     const [componentDetails, setComponentDetails] = useState();
     const [isAdmin, setIsAdmin] = useState(false);
     const [message, setMessage] = useState('');
+    const [showBuildPopup, setShowBuildPopup] = useState(false);
+    const [builds, setBuilds] = useState([]);
+    const [selectedBuildId, setSelectedBuildId] = useState('');
+    const [quantity, setQuantity] = useState(1);
     const { id } = useParams();
 
     useEffect(() => {
@@ -19,6 +23,14 @@ const CompInfo = () => {
                 setIsAdmin(localStorage.getItem('role') === 'Admin');
             })
             .catch(error => console.error('Error:', error));
+
+        const username = localStorage.getItem('username');
+        if (username) {
+            apiService.getBuilds(username)
+                .then(response => response.json())
+                .then(data => setBuilds(data))
+                .catch(error => console.error('Error:', error));
+        }
     }, [id]);
 
     const handleDelete = async () => {
@@ -36,6 +48,33 @@ const CompInfo = () => {
             });
     };
 
+    const handleAddToBuild = async () => {
+        if (!selectedBuildId) {
+            setMessage('Wybierz zestaw!');
+            return;
+        }
+
+        try {
+            const response = await apiService.addComponentToBuild({
+                buildId: selectedBuildId,
+                componentId: componentDetails.component_id,
+                quantity: quantity
+            });
+
+            if (response.ok) {
+                setMessage('Komponent został dodany do zestawu!');
+                setShowBuildPopup(false);
+                setSelectedBuildId('');
+                setQuantity(1);
+            } else {
+                setMessage('Wystąpił błąd podczas dodawania komponentu do zestawu.');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            setMessage('Wystąpił błąd podczas dodawania do zestawu.');
+        }
+    };
+
     if (!componentDetails) {
         return <div>Loading component details...</div>;
     }
@@ -46,12 +85,49 @@ const CompInfo = () => {
             <p className="product-type"><span>Kategoria:</span> {componentDetails.cat_name}</p>
             <p className="product-description"><span>Opis produktu:</span> {componentDetails.description}</p>
             <p className="product-price"><span>Cena:</span> {componentDetails.price} zł</p>
-            <button className="add-button">Dodaj do zestawu</button>
+            <button 
+                className="add-button" 
+                onClick={() => setShowBuildPopup(true)}
+            >
+                Dodaj do zestawu
+            </button>
             <p className="product-id">ID: {componentDetails.component_id}
                 {isAdmin && <button onClick={handleDelete} className="delete-button">Usuń produkt</button>}
                 {message && <p className="message">{message}</p>}
             </p>
 
+            {showBuildPopup && (
+                <div className="popup-overlay">
+                    <div className="popup-content">
+                        <h3>Wybierz zestaw</h3>
+                        <select 
+                            value={selectedBuildId} 
+                            onChange={(e) => setSelectedBuildId(e.target.value)}
+                        >
+                            <option value="">Wybierz zestaw...</option>
+                            {builds.map(build => (
+                                <option key={build.build_id} value={build.build_id}>
+                                    {build.build_name}
+                                </option>
+                            ))}
+                        </select>
+                        <div className="quantity-selector">
+                            <label>Ilość:</label>
+                            <input
+                                type="number"
+                                min="1"
+                                value={quantity}
+                                onChange={(e) => setQuantity(parseInt(e.target.value))}
+                            />
+                        </div>
+                        <div className="popup-buttons">
+                            <button onClick={handleAddToBuild}>Dodaj</button>
+                            <button onClick={() => setShowBuildPopup(false)}>Anuluj</button>
+                        </div>
+                        {message && <p className="message">{message}</p>}
+                    </div>
+                </div>
+            )}
         </div>
     );
 };
