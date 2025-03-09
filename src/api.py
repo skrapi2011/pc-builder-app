@@ -176,7 +176,11 @@ def register():
 
 # POST, adding a component
 @app.route('/add', methods=['POST'])
-def add():
+@authorized
+def add(current_user):
+    if current_user['role'] != 'Admin':
+        return jsonify({'error': 'Nie masz uprawnień do dodawania komponentów.'}), 403
+
     data = request.json
     name = data.get('name')
     description = data.get('description')
@@ -193,7 +197,11 @@ def add():
 
 # DELETE, removing a component
 @app.route('/remove', methods=['DELETE'])
-def remove():
+@authorized
+def remove(current_user):
+    if current_user['role'] != 'Admin':
+        return jsonify({'error': 'Nie masz uprawnień do usuwania komponentów.'}), 403
+
     data = request.json
     component_id = data.get('component_id')
 
@@ -209,7 +217,11 @@ def remove():
 
 # GET, getting user build
 @app.route('/build/<username>', methods=['GET'])
-def get_user_builds(username):
+@authorized
+def get_user_builds(current_user, username):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do wyświetlania zestawów.'}), 403
+
     try:
         # All user builds
         builds_query = '''
@@ -254,7 +266,11 @@ def get_user_builds(username):
 
 # POST, editing component
 @app.route('/edit', methods=['POST'])
-def edit_component():
+@authorized
+def edit_component(current_user):
+    if current_user['role'] != 'Admin':
+        return jsonify({'error': 'Nie masz uprawnień do edycji komponentów.'}), 403
+
     data = request.json
     component_id = data.get('component_id')
     name = data.get('name')
@@ -274,7 +290,11 @@ def edit_component():
 
 # POST, adding build to a user
 @app.route('/build/add', methods=['POST'])
-def add_build():
+@authorized
+def add_build(current_user):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do dodawania zestawów.'}), 403
+
     data = request.json
     build_name = data.get('name')
     username = data.get('username')
@@ -289,7 +309,11 @@ def add_build():
 
 # DELETE, removing a build
 @app.route('/build/<int:build_id>', methods=['DELETE'])
-def remove_build(build_id):
+@authorized
+def remove_build(current_user, build_id):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do usuwania zestawów.'}), 403
+
     try:
         query_db('DELETE FROM BuildInfo WHERE build_id=?', [build_id])
         query_db('DELETE FROM Build WHERE build_id=?', [build_id], commit=True)
@@ -301,7 +325,11 @@ def remove_build(build_id):
 
 # POST, updating build name 
 @app.route('/build/update', methods=['POST'])
-def update_build():
+@authorized
+def update_build(current_user):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do aktualizowania zestawów.'}), 403
+
     data = request.json
     build_id = data.get('buildId')
     name = data.get('name')
@@ -315,7 +343,11 @@ def update_build():
 
 # POST, adding component to build
 @app.route('/build/component/add', methods=['POST'])
-def add_component_to_build():
+@authorized
+def add_component_to_build(current_user):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do dodawania komponentów do zestawów.'}), 403
+
     data = request.json
     build_id = data.get('buildId')
     component_id = data.get('componentId')
@@ -353,7 +385,11 @@ def add_component_to_build():
 
 # DELETE, removing component from build
 @app.route('/build/component/remove', methods=['DELETE'])
-def remove_component_from_build():
+@authorized
+def remove_component_from_build(current_user):
+    if current_user['role'] != 'User':
+        return jsonify({'error': 'Nie masz uprawnień do usuwania komponentów z zestawów.'}), 403
+
     data = request.json
     build_id = data.get('buildId')
     component_id = data.get('componentId')
