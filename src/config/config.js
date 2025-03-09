@@ -4,10 +4,19 @@ export const config = {
         endpoints: {
             login: '/login',
             register: '/register',
+            categories: '/categories',
             components: '/components',
             component: '/component',
+            addComponent: '/add',
+            editComponent: '/edit',
+            removeComponent: '/remove',
             builds: '/build',
-            categories: '/categories'
+            addBuild: '/build/add',
+            updateBuild: '/build/update',
+            buildComponent: {
+                add: '/build/component/add',
+                remove: '/build/component/remove'
+            }
         }
     },
     app: {

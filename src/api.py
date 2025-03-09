@@ -74,19 +74,25 @@ def authorized(f):
                 token = parts[1]
 
         if not token:
-            print(" TOKEN",token)
             return jsonify({'error': 'Unauthorized'}), 401
 
         try:
             payload = jwt.decode(token, SECRET_KEY, algorithms=['HS256'])
-            current_user = payload['sub']
+            username = payload['sub']
+            
+            # Pobierz dane użytkownika z bazy
+            user = query_db('SELECT username, role FROM User WHERE username = ?', 
+                          [username], one=True)
+            if not user:
+                return jsonify({'error': 'User not found'}), 401
 
+            return f(user['username'], *args, **kwargs)
+            
         except jwt.ExpiredSignatureError:
             return jsonify({'error': 'Token expired'}), 401
         except jwt.InvalidTokenError:
             return jsonify({'error': 'Invalid token'}), 401
 
-        return f(current_user, *args, **kwargs)
     return decorated
 
 ##################
