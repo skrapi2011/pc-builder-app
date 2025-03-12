@@ -55,8 +55,8 @@ export const apiService = {
     // Zestawy
     getBuilds: (username) => fetch(`${API_URL}${config.api.endpoints.builds}/${username}`, {
         headers: {
-            ...defaultHeaders,
-            ...getAuthHeader()
+            ...defaultHeaders, // lista typowych naglowkow
+            ...getAuthHeader() // naglowek autoryzacji
         }
     }),
     
@@ -67,7 +67,11 @@ export const apiService = {
     }),
 
     deleteBuild: (buildId) => fetch(`${API_URL}${config.api.endpoints.builds}/${buildId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        headers: {
+            ...defaultHeaders,
+            ...getAuthHeader()
+        }
     }),
 
     updateBuild: (buildData) => fetch(`${API_URL}${config.api.endpoints.updateBuild}`, {

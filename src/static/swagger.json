@@ -1,0 +1,614 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "PC Builder API",
+        "version": "1.0.0",
+        "description": "API dla aplikacji PC Builder umożliwiającej zarządzanie zestawami komputerowymi"
+    },
+    "basePath": "/",
+    "schemes": ["http", "https"],
+    "produces": ["application/json"],
+    "consumes": ["application/json"],
+    "securityDefinitions": {
+        "Bearer": {
+            "type": "apiKey",
+            "name": "Authorization",
+            "in": "header",
+            "description": "JWT token w formacie: Bearer {token}"
+        }
+    },
+    "paths": {
+        "/categories": {
+            "get": {
+                "summary": "Pobierz wszystkie kategorie",
+                "responses": {
+                    "200": {
+                        "description": "Kategorie pobrane pomyślnie",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "cat_id": {
+                                        "type": "integer"
+                                    },
+                                    "cat_name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/components": {
+            "get": {
+                "summary": "Pobierz wszystkie komponenty",
+                "responses": {
+                    "200": {
+                        "description": "Komponenty pobrane pomyślnie",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "component_id": {
+                                        "type": "integer"
+                                    },
+                                    "name": {
+                                        "type": "string"
+                                    },
+                                    "cat_name": {
+                                        "type": "string"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/component/{id}": {
+            "get": {
+                "summary": "Pobierz szczegóły komponentu",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer",
+                        "description": "ID komponentu"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komponent znaleziony",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "component_id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "price": {
+                                    "type": "number"
+                                },
+                                "cat_name": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Komponent nie znaleziony"
+                    }
+                }
+            }
+        },
+        "/login": {
+            "post": {
+                "summary": "Logowanie użytkownika",
+                "parameters": [
+                    {
+                        "name": "credentials",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "username": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["username", "password"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zalogowano pomyślnie",
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "status": {
+                                    "type": "string"
+                                },
+                                "role": {
+                                    "type": "string"
+                                },
+                                "username": {
+                                    "type": "string"
+                                },
+                                "token": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "description": "Nieprawidłowe dane logowania"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "summary": "Rejestracja użytkownika",
+                "parameters": [
+                    {
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "username": {
+                                    "type": "string"
+                                },
+                                "password": {
+                                    "type": "string"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "surname": {
+                                    "type": "string"
+                                },
+                                "email": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["username", "password", "name", "surname", "email"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Użytkownik zarejestrowany"
+                    },
+                    "409": {
+                        "description": "Nazwa użytkownika zajęta"
+                    }
+                }
+            }
+        },
+        "/add": {
+            "post": {
+                "summary": "Dodaj nowy komponent",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "price": {
+                                    "type": "number"
+                                },
+                                "cat_id": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["name", "description", "price", "cat_id"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Komponent dodany pomyślnie"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/remove": {
+            "delete": {
+                "summary": "Usuń komponent",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "component_id": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["component_id"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komponent usunięty"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "404": {
+                        "description": "Komponent nie znaleziony"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/edit": {
+            "post": {
+                "summary": "Edytuj komponent",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "component_id": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                },
+                                "description": {
+                                    "type": "string"
+                                },
+                                "price": {
+                                    "type": "number"
+                                },
+                                "cat_id": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["component_id", "name", "description", "price", "cat_id"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komponent zaktualizowany"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "404": {
+                        "description": "Komponent nie znaleziony"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/{username}": {
+            "get": {
+                "summary": "Pobierz zestawy użytkownika",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "username",
+                        "in": "path",
+                        "required": true,
+                        "type": "string"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zestawy pobrane pomyślnie",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "type": "object",
+                                "properties": {
+                                    "build_id": {
+                                        "type": "integer"
+                                    },
+                                    "build_name": {
+                                        "type": "string"
+                                    },
+                                    "date": {
+                                        "type": "string"
+                                    },
+                                    "username": {
+                                        "type": "string"
+                                    },
+                                    "status": {
+                                        "type": "string"
+                                    },
+                                    "components": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "object",
+                                            "properties": {
+                                                "component_id": {
+                                                    "type": "integer"
+                                                },
+                                                "component_name": {
+                                                    "type": "string"
+                                                },
+                                                "quantity": {
+                                                    "type": "integer"
+                                                },
+                                                "description": {
+                                                    "type": "string"
+                                                },
+                                                "price": {
+                                                    "type": "number"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/add": {
+            "post": {
+                "summary": "Dodaj nowy zestaw",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "build",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "name": {
+                                    "type": "string"
+                                },
+                                "username": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["name", "username"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Zestaw dodany"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/{build_id}": {
+            "delete": {
+                "summary": "Usuń zestaw",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "build_id",
+                        "in": "path",
+                        "required": true,
+                        "type": "integer"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Zestaw usunięty"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/update": {
+            "post": {
+                "summary": "Aktualizuj nazwę zestawu",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "build",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "buildId": {
+                                    "type": "integer"
+                                },
+                                "name": {
+                                    "type": "string"
+                                }
+                            },
+                            "required": ["buildId", "name"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Nazwa zestawu zaktualizowana"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/component/add": {
+            "post": {
+                "summary": "Dodaj komponent do zestawu",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "buildId": {
+                                    "type": "integer"
+                                },
+                                "componentId": {
+                                    "type": "integer"
+                                },
+                                "quantity": {
+                                    "type": "integer",
+                                    "default": 1
+                                }
+                            },
+                            "required": ["buildId", "componentId"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komponent dodany do zestawu"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "404": {
+                        "description": "Zestaw lub komponent nie znaleziony"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        },
+        "/build/component/remove": {
+            "delete": {
+                "summary": "Usuń komponent z zestawu",
+                "security": [
+                    {
+                        "Bearer": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "component",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "buildId": {
+                                    "type": "integer"
+                                },
+                                "componentId": {
+                                    "type": "integer"
+                                }
+                            },
+                            "required": ["buildId", "componentId"]
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Komponent usunięty z zestawu"
+                    },
+                    "403": {
+                        "description": "Brak uprawnień"
+                    },
+                    "500": {
+                        "description": "Błąd serwera"
+                    }
+                }
+            }
+        }
+    }
+}
