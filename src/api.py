@@ -9,11 +9,24 @@ from datetime import datetime
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 
+from flask_swagger_ui import get_swaggerui_blueprint
+
 
 ##################
 #   App config   #
 ##################
-app = Flask(__name__)
+basedir = os.path.abspath(os.path.dirname(__file__))
+
+DATABASE = os.path.join(basedir, 'data', 'database.db')
+
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+
+static_folder = os.path.join(basedir, 'static')
+if not os.path.exists(static_folder):
+    os.makedirs(static_folder)
+
+app = Flask(__name__, static_folder=static_folder)
 CORS(app)
 
 # [!] We would not normally store key there, but its a sample project and database is not important
@@ -21,10 +34,15 @@ CORS(app)
 # SECRET_KEY = os.urandom(24)
 SECRET_KEY = b'\x86\xd9\xb5\xff\xdaO?\xd2B\xc7\xf6\xe4\x85v~\xd1\xeea\x17\xe8_kB:'
 
-# TODO: change to basedir   
-#basedir = os.path.abspath(os.path.dirname(__file__))
-#DATABASE = os.path.join(basedir, 'src', 'data', 'database.db')
-DATABASE = "C:\\Users\\michi\\Desktop\\pc-builder-app\\src\\data\\database.db"
+SWAGGER_URL = '/swagger'
+API_URL = '/static/swagger.json'
+swaggerui_blueprint = get_swaggerui_blueprint(
+    SWAGGER_URL,
+    API_URL,
+    config={'app_name': "PC Builder API"}
+)
+
+app.register_blueprint(swaggerui_blueprint, url_prefix=SWAGGER_URL)
 
 
 ##################
@@ -87,7 +105,13 @@ def authorized(f):
             if not user:
                 return jsonify({'error': 'User not found'}), 401
 
-            return f(user['username'], *args, **kwargs)
+            # Przekazujemy słownik z danymi użytkownika
+            current_user = {
+                'username': user['username'],
+                'role': user['role']
+            }
+
+            return f(current_user, *args, **kwargs)
             
         except jwt.ExpiredSignatureError:
             return jsonify({'error': 'Token expired'}), 401
@@ -216,12 +240,12 @@ def remove(current_user):
         return jsonify({'error': 'Nie można usunąć komponentu z bazy danych.'}), 500
 
 
-# GET, getting user build
+# GET, getting user builds
 @app.route('/build/<username>', methods=['GET'])
 @authorized
 def get_user_builds(current_user, username):
 
-    if current_user != username:
+    if current_user['username'] != username:
         return jsonify({'error': 'Nie masz uprawnień do wyświetlania zestawów tego użytkownika'}), 403
 
     try:
@@ -293,7 +317,7 @@ def edit_component(current_user):
     except Exception as e:
         return jsonify({'error': 'Nie można zaktualizować komponentu.'}), 500
 
-# POST, adding build to a user
+# POST, creating a build
 @app.route('/build/add', methods=['POST'])
 @authorized
 def add_build(current_user):
@@ -316,7 +340,7 @@ def add_build(current_user):
 @app.route('/build/<int:build_id>', methods=['DELETE'])
 @authorized
 def remove_build(current_user, build_id):
-    if current_user['role'] != 'User':
+    if current_user['role'] != 'User' and current_user['role'] != 'Admin':
         return jsonify({'error': 'Nie masz uprawnień do usuwania zestawów.'}), 403
 
     try:
@@ -332,7 +356,7 @@ def remove_build(current_user, build_id):
 @app.route('/build/update', methods=['POST'])
 @authorized
 def update_build(current_user):
-    if current_user['role'] != 'User':
+    if current_user['role'] != 'User' and current_user['role'] != 'Admin':
         return jsonify({'error': 'Nie masz uprawnień do aktualizowania zestawów.'}), 403
 
     data = request.json
